@@ -37,7 +37,9 @@ const Header: React.FC = () => {
     if (location.pathname === '/') {
       document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
     } else {
-      window.location.href = '/' + href; // will navigate and let anchor be handled
+      // Ensure we navigate within the GitHub Pages project base, not the domain root
+      const base = (import.meta as any).env.BASE_URL || '/';
+      window.location.href = `${base}${href}`; // e.g. /teiraculinaria/#contact
     }
     setIsOpen(false);
   };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -15,7 +15,7 @@ import ServicesPage from './pages/ServicesPage';
 
 const App: React.FC = () => {
   return (
-    <HashRouter>
+    <BrowserRouter basename={(import.meta as any).env.BASE_URL}>
       <div className="bg-slate-900 text-neutral-200 antialiased relative">
        <LiquidEther
         colors={['#a16207', '#1e293b', '#020617']}
@@ -54,7 +54,7 @@ const App: React.FC = () => {
         <Footer />
       </div>
     </div>
-    </HashRouter>
+    </BrowserRouter>
   );
 };
 

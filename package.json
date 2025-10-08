@@ -6,10 +6,10 @@
   "homepage": "https://albertfast.github.io/teiraculinaria",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && cp docs/index.html docs/404.html",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist",
+    "deploy": "echo Deploy by committing docs/ to main branch",
     "extract:pdf": "node ./scripts/extractPdf.cjs"
   },
   "dependencies": {
