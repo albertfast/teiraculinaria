@@ -93,7 +93,7 @@ const AboutPage: React.FC = () => {
       {/* Chef section — full-width bottom photo band */}
       <section className="relative mt-6">
         <img
-          src="./imggallery/denizsezeridea.jpeg"
+          src="./imggallery/340490753_536729521725498_7803232779063458043_n.jpg"
           alt="Chef Deniz Sezer"
           className="w-full h-[520px] object-cover"
         />
