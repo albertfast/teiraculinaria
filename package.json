@@ -1,0 +1,27 @@
+{
+  "name": "deniz-sezer-|-culinary-artistry",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "extract:pdf": "node ./scripts/extractPdf.cjs"
+  },
+  "dependencies": {
+    "gsap": "^3.13.0",
+    "ogl": "^1.0.11",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^6.30.1",
+    "three": "^0.180.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "pdf-parse": "^1.1.1",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  }
+}
