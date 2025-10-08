@@ -13,7 +13,7 @@ const AboutPage: React.FC = () => {
           muted
           loop
           playsInline
-          poster="./imggallery/denizsezeridea.jpeg"
+          poster="./imggallery/340490753_536729521725498_7803232779063458043_n.jpg"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-slate-950/55 to-slate-950/80" />
         <div className="relative z-10 container mx-auto px-6 h-full flex items-center">

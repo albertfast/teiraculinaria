@@ -112,7 +112,7 @@ const ServicesPage: React.FC = () => {
       <section className="relative w-full overflow-hidden">
         <div className="relative min-h-[420px] md:h-[54vh]">
           <img
-            src="./imggallery/340490753_536729521725498_7803232779063458043_n.jpg"
+            src="./imggallery/denizsezeridea.jpeg"
             alt="Private Chef Services"
             className="absolute inset-0 w-full h-full object-cover"
           />
