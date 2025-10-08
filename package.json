@@ -1,16 +1,16 @@
 {
   "name": "deniz-sezer-|-culinary-artistry",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
   "type": "module",
+  "homepage": "https://albertfast.github.io/teiraculinaria",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
-    "extract:pdf": "node ./scripts/extractPdf.cjs",
-    "homepage": "https://albertfast.github.io/teiraculinaria"
+    "extract:pdf": "node ./scripts/extractPdf.cjs"
   },
   "dependencies": {
     "gsap": "^3.13.0",
