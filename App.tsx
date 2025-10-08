@@ -27,7 +27,7 @@ const App: React.FC = () => {
     return null;
   };
   return (
-    <BrowserRouter basename={(import.meta as any).env.BASE_URL}>
+    <BrowserRouter basename={String((import.meta as any).env.BASE_URL || '/').replace(/\/$/, '')}>
       <div className="bg-slate-900 text-neutral-200 antialiased relative">
        <LiquidEther
         colors={['#a16207', '#1e293b', '#020617']}
