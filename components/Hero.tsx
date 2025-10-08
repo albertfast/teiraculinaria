@@ -9,7 +9,7 @@ const Hero: React.FC = () => {
 
   return (
     <section id="home" className="h-screen min-h-[700px] flex items-center justify-center text-center relative overflow-hidden bg-black">
-      <img src="/imggallery/146036331_2570005219790657_2835741437971567938_n.jpg" alt="Chef background" className="absolute inset-0 w-full h-full object-cover opacity-30" />
+  <img src="./imggallery/146036331_2570005219790657_2835741437971567938_n.jpg" alt="Chef background" className="absolute inset-0 w-full h-full object-cover opacity-30" />
       <div className="relative z-10 text-white p-6 animate-fadeUp max-w-5xl">
         <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold font-serif leading-tight mb-4 tracking-tight">
           Deniz Sezer — Michelin-Trained Chef

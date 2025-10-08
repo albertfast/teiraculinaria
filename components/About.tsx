@@ -8,7 +8,7 @@ const About: React.FC = () => {
           <div className="md:col-span-2">
             <div className="relative">
                 <img 
-                    src="/imggallery/denizsezeridea.jpeg" 
+                    src="./imggallery/denizsezeridea.jpeg" 
                     alt="Chef Deniz Sezer" 
                     className="rounded-lg shadow-2xl w-full h-auto object-cover"
                 />

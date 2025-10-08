@@ -22,7 +22,7 @@ const packages: Pkg[] = [
     key: 'modern-fine-dining',
     title: '3 to 5‑Course Modern Fine Dining',
     badge: 'Popular',
-    img: '/imggallery/299220748_486389583312196_2918701892607691025_n.jpg',
+  img: './imggallery/299220748_486389583312196_2918701892607691025_n.jpg',
     blurb:
       'An unforgettable evening crafted to your tastes — seasonal ingredients, refined techniques and elegant plating.',
     includes: [
@@ -34,7 +34,7 @@ const packages: Pkg[] = [
   {
     key: 'romantic-dinner',
     title: 'Romantic Dinner with a Private Chef',
-    img: '/imggallery/351088026_944585160151459_2706183776673791694_n.jpg',
+  img: './imggallery/351088026_944585160151459_2706183776673791694_n.jpg',
     blurb:
       'A 5‑course fine‑dining experience tailored for two. Celebrate with a bouquet of red roses and chilled French champagne.',
     includes: [
@@ -46,7 +46,7 @@ const packages: Pkg[] = [
   {
     key: 'chefs-choice',
     title: "Chef's Choice / Premium Degustation",
-    img: '/imggallery/318235503_536005258138307_7765495500139449825_n.jpg',
+  img: './imggallery/318235503_536005258138307_7765495500139449825_n.jpg',
     blurb:
       'A curated 7‑course dégustation spotlighting signature dishes and inventive pairings. Designed around your preferences.',
     includes: [
@@ -58,7 +58,7 @@ const packages: Pkg[] = [
   {
     key: 'family-style',
     title: 'Family Style Share Plates',
-    img: '/imggallery/299622273_867508887542151_6159437778816378211_n.jpg',
+  img: './imggallery/299622273_867508887542151_6159437778816378211_n.jpg',
     blurb:
       'Seven gourmet dishes served family‑style. A convivial, customizable feast with something for every guest.',
     includes: [
@@ -70,7 +70,7 @@ const packages: Pkg[] = [
   {
     key: 'blindfolded',
     title: 'Blindfolded Dinner — Dine in the Dark',
-    img: '/imggallery/316119619_6422508417765998_6768193420321574199_n.jpg',
+  img: './imggallery/316119619_6422508417765998_6768193420321574199_n.jpg',
     blurb:
       'A sensory 5‑course journey guided by your chef. Explore textures and flavors without sight — unforgettable.',
     includes: [
@@ -112,7 +112,7 @@ const ServicesPage: React.FC = () => {
       <section className="relative w-full overflow-hidden">
         <div className="relative min-h-[420px] md:h-[54vh]">
           <img
-            src="/imggallery/340490753_536729521725498_7803232779063458043_n.jpg"
+            src="./imggallery/340490753_536729521725498_7803232779063458043_n.jpg"
             alt="Private Chef Services"
             className="absolute inset-0 w-full h-full object-cover"
           />

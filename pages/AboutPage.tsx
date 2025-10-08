@@ -8,12 +8,12 @@ const AboutPage: React.FC = () => {
       <section className="relative h-[58vh] min-h-[420px] w-full overflow-hidden">
         <video
           className="absolute inset-0 w-full h-full object-cover"
-          src="/imggallery/Video by chefdenizsezer [DLWUUKQReM0].mp4"
+          src="./imggallery/Video by chefdenizsezer [DLWUUKQReM0].mp4"
           autoPlay
           muted
           loop
           playsInline
-          poster="/imggallery/denizsezeridea.jpeg"
+          poster="./imggallery/denizsezeridea.jpeg"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-slate-950/60 via-slate-950/55 to-slate-950/80" />
         <div className="relative z-10 container mx-auto px-6 h-full flex items-center">
@@ -93,7 +93,7 @@ const AboutPage: React.FC = () => {
       {/* Chef section — full-width bottom photo band */}
       <section className="relative mt-6">
         <img
-          src="/imggallery/denizsezeridea.jpeg"
+          src="./imggallery/denizsezeridea.jpeg"
           alt="Chef Deniz Sezer"
           className="w-full h-[520px] object-cover"
         />
