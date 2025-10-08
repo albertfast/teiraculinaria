@@ -34,7 +34,7 @@ const Header: React.FC = () => {
   const scrollToSection = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     // If we're on the home page, smooth-scroll to anchors; otherwise navigate to home and then scroll
-    if (location.pathname === '/') {
+    if (location.pathname === '/' || location.pathname === (import.meta as any).env.BASE_URL) {
       document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
     } else {
       // Ensure we navigate within the GitHub Pages project base, not the domain root

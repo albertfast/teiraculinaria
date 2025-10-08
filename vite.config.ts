@@ -4,9 +4,10 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
+    const isProd = mode === 'production';
     return {
-      // Important for GitHub Pages: app is served at /teiraculinaria/
-      base: '/teiraculinaria/',
+      // In dev use '/', in prod use GitHub Pages base
+      base: isProd ? '/teiraculinaria/' : '/',
       // Place the build where GitHub Pages (main/docs) can serve it easily
       build: {
         outDir: 'docs',

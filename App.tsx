@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -12,8 +12,20 @@ import './components/LiquidEther.css';
 import MenuPage from './pages/MenuPage';
 import AboutPage from './pages/AboutPage';
 import ServicesPage from './pages/ServicesPage';
+import SpecialAccess from './components/SpecialAccess';
 
 const App: React.FC = () => {
+  const ScrollToHash: React.FC = () => {
+    const { hash } = useLocation();
+    useEffect(() => {
+      if (hash) {
+        const id = decodeURIComponent(hash);
+        const el = document.querySelector(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, [hash]);
+    return null;
+  };
   return (
     <BrowserRouter basename={(import.meta as any).env.BASE_URL}>
       <div className="bg-slate-900 text-neutral-200 antialiased relative">
@@ -49,7 +61,9 @@ const App: React.FC = () => {
             <Route path="/menu" element={<MenuPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/services" element={<ServicesPage />} />
+            <Route path="/special-access" element={<SpecialAccess />} />
           </Routes>
+          <ScrollToHash />
         </main>
         <Footer />
       </div>
