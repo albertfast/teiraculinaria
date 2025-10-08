@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "extract:pdf": "node ./scripts/extractPdf.cjs"
+    "extract:pdf": "node ./scripts/extractPdf.cjs",
+    "homepage": "https://albertfast.github.io/teiraculinaria"
   },
   "dependencies": {
     "gsap": "^3.13.0",
