@@ -112,18 +112,14 @@ const AboutPage: React.FC = () => {
         <div className="container mx-auto px-6">
           <div className="rounded-xl overflow-hidden shadow-lg">
             <div className="md:w-2/3 mx-auto h-80 md:h-96 overflow-hidden">
+              {/* Using an image we know exists in the built output */}
               <img
-                src="./imggallery/vegetable.jpg"
-                alt="Anatolian Vegetable Dishes"
+                src="./imggallery/340490753_536729521725498_7803232779063458043_n.jpg"
+                alt="Chef Portrait"
                 className="w-full h-full object-cover"
                 loading="lazy"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  console.error("Image failed to load:", target.src);
-                  target.src = "./imggallery/vegetable.jpeg"; // Fallback image
-                }}
                 style={{
-                  objectPosition: "center top" // Position to focus on food
+                  objectPosition: "center center" // Adjusting focus for a different image
                 }}
               />
             </div>
