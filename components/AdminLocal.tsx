@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import type { Card, Content } from '../src/types';
-import { downloadJSON } from '../src/lib/content';
+import { downloadJSON, fetchContent } from '../src/lib/content';
 
 const mkId = () => (crypto && 'randomUUID' in crypto ? crypto.randomUUID() : String(Date.now() + Math.random()));
 
@@ -24,6 +24,7 @@ const blank: Card = {
 export default function AdminLocal() {
 	const [cards, setCards] = useState<Card[]>([]);
 	const [form, setForm] = useState<Card>(blank);
+	const fileRef = useRef<HTMLInputElement | null>(null);
 
 	// load from localStorage
 	useEffect(() => {
@@ -46,13 +47,39 @@ export default function AdminLocal() {
 
 	const content: Content = useMemo(() => ({ version: 1, cards }), [cards]);
 	const download = () => downloadJSON('content.json', content);
+		const clearAll = () => { setCards([]); localStorage.removeItem('cards-local'); };
+
+		const importFromFile = async (file?: File | null) => {
+			try {
+				const f = file ?? fileRef.current?.files?.[0];
+				if (!f) return;
+				const text = await f.text();
+				const parsed = JSON.parse(text) as Content;
+				if (parsed && Array.isArray(parsed.cards)) {
+					setCards(parsed.cards);
+				}
+			} catch (e) {
+				alert('JSON dosyası okunamadı: ' + (e as Error).message);
+			} finally {
+				if (fileRef.current) fileRef.current.value = '';
+			}
+		};
+
+		const loadFromPublic = async () => {
+			try {
+				const data = await fetchContent();
+				setCards(Array.isArray(data.cards) ? data.cards : []);
+			} catch (e) {
+				alert('public/content.json yüklenemedi. Yapılandırmayı kontrol edin.');
+			}
+		};
 
 	return (
 		<div style={{ padding: 24, maxWidth: 1100, margin: '0 auto', color: '#e2e8f0', fontFamily:'system-ui, sans-serif' }}>
 			<h2 style={{marginTop:0}}>Admin (Local, Backendless)</h2>
 			<p style={{opacity:.8, lineHeight:1.4}}>Bu sayfa sadece yerel cihazınızda çalışır. Kartları ekleyip <strong>Download content.json</strong> ile dosyayı indirin; sonra projedeki <code>public/content.json</code> dosyasını değiştirip commit/push yapınca canlıya çıkar.</p>
 
-			<div style={{ border: '1px solid #334155', borderRadius: 8, padding: 12, margin: '12px 0', background:'#0f172a' }}>
+					<div style={{ border: '1px solid #334155', borderRadius: 8, padding: 12, margin: '12px 0', background:'#0f172a' }}>
 				<h3 style={{marginTop:0}}>Yeni Kart</h3>
 				<div style={{ display:'grid', gap:8, gridTemplateColumns:'repeat(auto-fit,minmax(220px,1fr))' }}>
 					<label>Section <input value={form.section} onChange={e => setForm({ ...form, section: e.target.value })} /></label>
@@ -75,10 +102,14 @@ export default function AdminLocal() {
 					<label>Y% <input type="number" value={form.y ?? 0} onChange={e => setForm({ ...form, y: Number(e.target.value) })} /></label>
 					<label>Width% <input type="number" value={form.width_pct ?? 100} onChange={e => setForm({ ...form, width_pct: Number(e.target.value) })} /></label>
 				</div>
-				<div style={{ marginTop: 10, display:'flex', gap:8 }}>
-					<button onClick={add}>Add Card</button>
-					<button onClick={download}>Download content.json</button>
-				</div>
+						<div style={{ marginTop: 10, display:'flex', gap:8, flexWrap:'wrap' }}>
+							<button onClick={add}>Add Card</button>
+							<button onClick={download}>Download content.json</button>
+							<button onClick={loadFromPublic}>Load current public/content.json</button>
+							<input ref={fileRef} type="file" accept="application/json" style={{ display:'none' }} onChange={e => importFromFile(e.target.files?.[0] ?? null)} />
+							<button onClick={() => fileRef.current?.click()}>Import content.json (file)</button>
+							<button onClick={clearAll} style={{ color:'#f87171' }}>Clear all (local)</button>
+						</div>
 			</div>
 
 			<div style={{ display:'grid', gap:10 }}>
