@@ -113,7 +113,7 @@ const AboutPage: React.FC = () => {
           <div className="rounded-xl overflow-hidden shadow-lg">
             <div className="md:w-2/3 mx-auto h-80 md:h-96 overflow-hidden">
               <img
-                src="./imggallery/vegi.jpeg"
+                src="./imggallery/vegetable.jpg"
                 alt="vegi"
                 className="w-full h-full object-cover"
                 loading="lazy"
