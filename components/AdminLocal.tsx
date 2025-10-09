@@ -25,6 +25,8 @@ export default function AdminLocal() {
 	const [cards, setCards] = useState<Card[]>([]);
 	const [form, setForm] = useState<Card>(blank);
 	const fileRef = useRef<HTMLInputElement | null>(null);
+	const base = String((import.meta as any).env.BASE_URL || '/');
+	const toUrl = (p: string) => (/^https?:\/\//.test(p) ? p : (base + p.replace(/^\//, '')));
 
 	// load from localStorage
 	useEffect(() => {
@@ -116,8 +118,8 @@ export default function AdminLocal() {
 				{cards.map(c => (
 					<div key={c.id} style={{ border:'1px solid #1e293b', borderRadius:8, padding:10, background:'#0f172a' }}>
 						<div style={{ display:'flex', gap:12, alignItems:'center' }}>
-							{c.image_url && <div style={{ width:120, height:80, borderRadius:6, overflow:'hidden', background:'#111' }}>
-								<img src={/^https?:\//.test(c.image_url) ? c.image_url : c.image_url} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+											{c.image_url && <div style={{ width:120, height:80, borderRadius:6, overflow:'hidden', background:'#111' }}>
+												<img src={toUrl(c.image_url)} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
 							</div>}
 							<div style={{ flex:1 }}>
 								<strong>{c.title || '(untitled)'}</strong> <small style={{opacity:.65}}>#{c.order_index} • {c.section}</small>
