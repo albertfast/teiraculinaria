@@ -3,6 +3,14 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'public/content.json'
+      - 'public/uploads/**'
+      - 'src/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'yarn.lock'
+      - 'vite.config.*'
   workflow_dispatch:
 
 permissions:
@@ -28,15 +36,30 @@ jobs:
           cache: 'npm'
 
       - name: Install
-        run: npm ci
+        run: npm ci || npm install
 
       - name: Build
         run: npm run build
+      
+      - name: Create missing directories
+        run: |
+          mkdir -p docs/uploads/gallery
+          mkdir -p docs/uploads/services
+          mkdir -p docs/uploads/about
+          
+      - name: Copy 404.html
+        run: cp docs/index.html docs/404.html || echo 'no 404 copied'
+        
+      - name: Copy existing uploads
+        run: |
+          if [ -d "public/uploads" ]; then
+            cp -r public/uploads/* docs/uploads/ || echo "No uploads to copy"
+          fi
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: docs
 
   deploy:
     needs: build

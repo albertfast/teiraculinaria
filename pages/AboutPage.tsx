@@ -8,7 +8,7 @@ const AboutPage: React.FC = () => {
       <section className="relative h-[58vh] min-h-[420px] w-full overflow-hidden">
         <video
           className="absolute inset-0 w-full h-full object-cover"
-          src="./imggallery/Video by chefdenizsezer [DLWUUKQReM0].mp4"
+          src="./imggallery/title.mp4"
           autoPlay
           muted
           loop
