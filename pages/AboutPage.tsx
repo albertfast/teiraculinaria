@@ -114,7 +114,7 @@ const AboutPage: React.FC = () => {
             <div className="md:w-2/3 mx-auto h-80 md:h-96 overflow-hidden">
               {/* Using an image we know exists in the built output */}
               <img
-                src="./imggallery/340490753_536729521725498_7803232779063458043_n.jpg"
+                src="./imggallery/vegetable.jpg"
                 alt="Chef Portrait"
                 className="w-full h-full object-cover"
                 loading="lazy"
