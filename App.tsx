@@ -14,7 +14,9 @@ import AboutPage from './pages/AboutPage';
 import ServicesPage from './pages/ServicesPage';
 import SpecialAccess from './components/SpecialAccess';
 import AdminLocal from './components/AdminLocal';
-import AdminGitHub from './src/components/AdminGitHub';
+import AdminGitHub from './components/AdminGitHub';
+import AdminLogin from './components/AdminLogin';
+import AdminPanel from './components/AdminPanel';
 
 const App: React.FC = () => {
   const ScrollToHash: React.FC = () => {
@@ -66,6 +68,8 @@ const App: React.FC = () => {
             <Route path="/special-access" element={<SpecialAccess />} />
             <Route path="/admin" element={<AdminLocal />} />
             <Route path="/admin-github" element={<AdminGitHub />} />
+            <Route path="/admin-login" element={<AdminLogin />} />
+            <Route path="/admin-panel" element={<AdminPanel />} />
           </Routes>
           <ScrollToHash />
         </main>
