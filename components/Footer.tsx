@@ -29,7 +29,10 @@ const Footer: React.FC = () => {
           </div>
         </div>
         <div className="mt-8 border-t border-slate-700 pt-6 text-center text-sm text-neutral-500">
-          <p>&copy; {new Date().getFullYear()} Deniz Sezer. All Rights Reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Ahmet Sahiner. All Rights Reserved.</p>
+          <a href="mailto:ahmetsahinersf@gmail.com" className="hover:text-amber-500 transition-colors duration-300 text-neutral-300">
+            ahmetsahinersf@gmail.com
+          </a>
         </div>
       </div>
     </footer>

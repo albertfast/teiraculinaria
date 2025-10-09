@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "cards": [
+    {
+      "id": "ex-1",
+      "section": "gallery",
+      "title": "3–5 Course Modern Fine Dining",
+      "subtitle": "Anatolian soul",
+      "body": "Seasonal ingredients, refined techniques.",
+      "font_family": "serif",
+      "font_size": 20,
+      "font_weight": "600",
+      "text_color": "#eae6d6",
+      "text_align": "left",
+      "x": 4,
+      "y": 8,
+      "width_pct": 60,
+      "image_url": "uploads/sample.svg",
+      "image_alt": "dish",
+      "order_index": 1
+    }
+  ]
+}
