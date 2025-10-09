@@ -58,11 +58,15 @@ export default function AdminGitHub() {
   // Drag & drop upload
   const handleFileDrop: React.DragEventHandler<HTMLDivElement> = (e) => {
     e.preventDefault();
-    const fs = Array.from(e.dataTransfer.files || []).filter(f => f.type.startsWith('image/'));
+    const fs = Array.from(e.dataTransfer.files || []).filter((f: File) => 
+      f.type.startsWith('image/')
+    );
     if (fs.length) setFiles(prev => [...prev, ...fs]);
   };
   const onPick: React.ChangeEventHandler<HTMLInputElement> = (e) => {
-    const fs = Array.from(e.target.files || []).filter(f => f.type.startsWith('image/'));
+    const fs = Array.from(e.target.files || []).filter((f: File) => 
+      f.type.startsWith('image/')
+    );
     if (fs.length) setFiles(prev => [...prev, ...fs]);
   };
 
@@ -166,7 +170,7 @@ export default function AdminGitHub() {
     if (from == null || from === i) return;
     const reordered = move(sectionCards, from, i);
     // write back into global cards with new order_index
-    const idOrder = reordered.map((c, idx) => ({ id: c.id as string, order: idx+1 }));
+    const idOrder = reordered.map((c: Card, idx) => ({ id: c.id as string, order: idx+1 }));
     setCards(prev => prev.map(c => {
       const m = idOrder.find(x => x.id === c.id);
       return m ? { ...c, order_index: m.order } : c;
