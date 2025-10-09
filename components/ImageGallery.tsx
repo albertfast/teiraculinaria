@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
 
-const images = [
-  './imggallery/denizsezeridea.jpeg',
-  './imggallery/316119619_6422508417765998_6768193420321574199_n.jpg',
-  './imggallery/324544066_152195107605724_1918904625421334616_n.jpg',
-  './imggallery/340490753_536729521725498_7803232779063458043_n.jpg',
-  './imggallery/299622273_867508887542151_6159437778816378211_n.jpg',
-  './imggallery/310038471_641913360867435_675961683670589393_n.jpg',
-  './imggallery/313873528_1866452180360149_4966383405849033872_n.jpg',
-  './imggallery/351088026_944585160151459_2706183776673791694_n.jpg'
+// Use BASE_URL for correct path resolution in production
+const getPath = (path: string) => {
+  return (import.meta as any).env.BASE_URL + path.replace('./', '');
+};
+
+const imageNames = [
+  'denizsezeridea.jpeg',
+  '316119619_6422508417765998_6768193420321574199_n.jpg',
+  '324544066_152195107605724_1918904625421334616_n.jpg',
+  '340490753_536729521725498_7803232779063458043_n.jpg',
+  '299622273_867508887542151_6159437778816378211_n.jpg',
+  '310038471_641913360867435_675961683670589393_n.jpg',
+  '313873528_1866452180360149_4966383405849033872_n.jpg',
+  '351088026_944585160151459_2706183776673791694_n.jpg'
 ];
+
+const images = imageNames.map(img => getPath('imggallery/' + img));
 
 const ImageGallery: React.FC = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
