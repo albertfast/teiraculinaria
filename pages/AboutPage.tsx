@@ -113,14 +113,14 @@ const AboutPage: React.FC = () => {
           <div className="rounded-xl overflow-hidden shadow-lg">
             <div className="md:w-2/3 mx-auto h-80 md:h-96 overflow-hidden">
               <img
-                src="/imggallery/vegetable.jpg"
+                src="./imggallery/vegetable.jpg"
                 alt="Anatolian Vegetable Dishes"
                 className="w-full h-full object-cover"
                 loading="lazy"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
                   console.error("Image failed to load:", target.src);
-                  target.src = "/imggallery/vegi.jpeg"; // Fallback image
+                  target.src = "./imggallery/vegetable.jpeg"; // Fallback image
                 }}
                 style={{
                   objectPosition: "center top" // Position to focus on food
