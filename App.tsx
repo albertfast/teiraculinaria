@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -70,6 +70,11 @@ const App: React.FC = () => {
             <Route path="/admin-github" element={<AdminGitHub />} />
             <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/admin-panel" element={<AdminPanel />} />
+            <Route path="/admin-panel-new" element={
+              <Suspense fallback={<div className="p-5 text-center">Yükleniyor...</div>}>
+                {React.createElement(React.lazy(() => import('./components/AdminPanel_new')))}
+              </Suspense>
+            } />
           </Routes>
           <ScrollToHash />
         </main>
