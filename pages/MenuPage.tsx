@@ -3,7 +3,7 @@ import parsed from '../data/parsedPdf'; // Bu PDF parse edilmiş veri, menü iç
 import MenuBackground from '../components/MenuBackground';
 
 // Fallback offers: Admin panelden henüz hiç veri gelmediğinde veya hata oluştuğunda kullanılacak varsayılan menüler.
-const fallbackOffers = [
+export const fallbackOffers = [
   {
     key: 'signature',
     title: "Chef's Choice / Premium",

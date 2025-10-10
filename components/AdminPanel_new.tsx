@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './AdminPanel.css'; // Harici stil dosyanız
+import './AdminPanel.css';
+import { fallbackOffers } from '../pages/MenuPage'; // Harici stil dosyanız
 
 // Data types (AdminPanel_new.tsx ve MenuPage.tsx arasında paylaşılabilecek tipler)
 interface BaseItem {
@@ -157,13 +158,44 @@ const AdminPanel: React.FC = () => {
       const savedContent = localStorage.getItem('siteContent');
       if (savedContent) {
         const parsedContent: SiteContent = JSON.parse(savedContent); // Tip güvenliği
+        // Eğer menuSections boşsa, fallbackOffers'tan oluştur
+        if (!parsedContent.menuSections || parsedContent.menuSections.length === 0) {
+          parsedContent.menuSections = fallbackOffers.map(o => o.title);
+        }
+        // Eğer menu boşsa, fallbackOffers'tan oluştur
+        if (!parsedContent.menu || parsedContent.menu.length === 0) {
+          parsedContent.menu = fallbackOffers.map((o, index) => ({
+            id: o.key,
+            title: o.title,
+            description: o.desc,
+            images: [o.img],
+            order: index + 1,
+            category: o.title,
+          }));
+        }
         setContent(parsedContent);
         showNotificationMessage('Content loaded successfully');
       } else {
-        // If there is no saved content, create sample content
-        const exampleContent = generateExampleContent();
-        setContent(exampleContent);
-        showNotificationMessage('Sample content loaded');
+        // If there is no saved content, create content from fallbackOffers
+        const fallbackContent: SiteContent = {
+          menuSections: fallbackOffers.map(o => o.title),
+          menu: fallbackOffers.map((o, index) => ({
+            id: o.key,
+            title: o.title,
+            description: o.desc,
+            images: [o.img],
+            order: index + 1,
+            category: o.title,
+          })),
+          services: [],
+          hero: [],
+          testimonials: [],
+          about: [],
+          contact: [],
+          pages: {},
+        };
+        setContent(fallbackContent);
+        showNotificationMessage('Content loaded from fallback data');
       }
     } catch (error) {
       console.error('Error loading content:', error);
