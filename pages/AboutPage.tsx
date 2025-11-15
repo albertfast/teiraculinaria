@@ -1,24 +1,47 @@
+
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import Ballpit from '../components/Ballpit';
 import LightBallpit from '../components/LightBallpit';
 
+interface AboutItem {
+  id: string;
+  title: string;
+  subtitle?: string;
+  description: string;
+  images: string[];
+  order: number;
+}
+
 const AboutPage: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
-  
+  const [aboutItems, setAboutItems] = useState<AboutItem[]>([]);
+
   useEffect(() => {
-    // Check if the device is mobile/low-performance
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768 || 
-                 /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
+      setIsMobile(window.innerWidth < 768 ||
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent));
     };
-    
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('siteContent');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed.about)) {
+          setAboutItems(parsed.about);
+        }
+      }
+    } catch (e) {
+      setAboutItems([]);
+    }
+  }, []);
+
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 relative">
+    <main id="about" className="min-h-screen bg-slate-950 text-slate-100 relative">
       {/* Background bubbles (fixed position) */}
       <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
         {isMobile ? (
@@ -38,7 +61,28 @@ const AboutPage: React.FC = () => {
         )}
         <div className="absolute inset-0 bg-slate-950/85" />
       </div>
-      
+
+      {/* Dinamik About içeriği (admin panelden) */}
+      {aboutItems.length > 0 && (
+        <div className="relative z-20 container mx-auto px-6 pt-12">
+          <h1 className="text-5xl md:text-6xl font-serif text-white drop-shadow mb-8">About</h1>
+          {aboutItems.map((item) => (
+            <section key={item.id} className="mb-12 bg-slate-900/70 rounded-xl shadow-lg p-8 flex flex-col md:flex-row gap-8">
+              {item.images && item.images[0] && (
+                <div className="md:w-1/3 flex-shrink-0">
+                  <img src={item.images[0]} alt={item.title} className="w-full h-64 object-cover rounded-lg shadow-md" />
+                </div>
+              )}
+              <div className="flex-1">
+                <h2 className="text-3xl font-serif text-white mb-2">{item.title}</h2>
+                {item.subtitle && <h3 className="text-xl text-amber-200 mb-2">{item.subtitle}</h3>}
+                <p className="text-slate-200 text-lg mb-2">{item.description}</p>
+              </div>
+            </section>
+          ))}
+        </div>
+      )}
+
       {/* Content with z-index over background */}
       <div className="relative z-10">
       {/* Hero with background video */}

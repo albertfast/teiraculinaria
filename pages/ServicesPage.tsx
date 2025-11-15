@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import parsed from '../data/parsedPdf';
 
 /*
@@ -81,6 +81,8 @@ const packages: Pkg[] = [
   }
 ];
 
+export { packages };
+
 const alwaysIncluded = [
   'Bespoke menu design tailored to preferences & dietary needs',
   'Premium, locally‑sourced ingredients',
@@ -103,8 +105,90 @@ const howItWorks = [
 
 const ServicesPage: React.FC = () => {
   // Keep hero intro short and curated; avoid dumping long PDF text that can overflow the hero
-  const intro =
+  const defaultIntro =
     'Bespoke private chef experiences tailored to your tastes — Michelin‑trained craft with Anatolian soul.';
+
+  // Local state that will be populated from admin panel's `siteContent` (localStorage)
+  type ServiceItem = {
+    id: string;
+    title?: string;
+    subtitle?: string;
+    description?: string;
+    images?: string[];
+    details?: string[];
+    order?: number;
+  };
+
+  type PageSection = {
+    heading?: string;
+    text?: string;
+    images?: string[];
+  };
+
+  const [servicesData, setServicesData] = useState<Pkg[]>(packages);
+  const [heroIntro, setHeroIntro] = useState<string>(defaultIntro);
+  const [heroImage, setHeroImage] = useState<string>('./imggallery/denizsezeridea.jpeg');
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('siteContent');
+      let site: any = raw ? JSON.parse(raw) : {};
+
+      // Always detect services from DOM and update
+      const detectedServices: any[] = [];
+      const packageArticles = document.querySelectorAll('section.services article');
+      console.log('Found package articles:', packageArticles.length);
+      packageArticles.forEach((article, index) => {
+        const img = article.querySelector('img')?.getAttribute('src') || '';
+        const title = article.querySelector('h3')?.textContent?.trim() || '';
+        const blurb = article.querySelector('p')?.textContent?.trim() || '';
+        const includes: string[] = [];
+        article.querySelectorAll('li span:last-child').forEach(li => {
+          const text = li.textContent?.trim();
+          if (text) includes.push(text);
+        });
+        console.log(`Article ${index}: title=${title}, blurb=${blurb}, includes=${includes.length}`);
+        if (title) {
+          detectedServices.push({
+            id: `service_${index}`,
+            title,
+            description: blurb,
+            images: [img],
+            order: index + 1,
+            details: includes,
+          });
+        }
+      });
+      if (detectedServices.length > 0) {
+        site.services = detectedServices;
+        localStorage.setItem('siteContent', JSON.stringify(site));
+        console.log('Updated siteContent with detected services:', detectedServices.length);
+      }
+
+      // If admin provided explicit services array, map it to our Pkg shape
+      if (Array.isArray(site.services) && site.services.length > 0) {
+        const mapped: Pkg[] = site.services.map((s: ServiceItem) => ({
+          key: s.id || (s.title || '').toLowerCase().replace(/[^a-z0-9]+/gi, '-'),
+          title: s.title || s.subtitle || 'Service',
+          img: (s.images && s.images[0]) || './imggallery/denizsezeridea.jpeg',
+          blurb: s.description || '',
+          includes: Array.isArray(s.details) && s.details.length ? s.details : [],
+        }));
+        setServicesData(mapped);
+      }
+
+      // Also allow a page-level hero override from pages['/services']
+      const pageSections: PageSection[] | undefined = site.pages && site.pages['/services'];
+      if (Array.isArray(pageSections) && pageSections.length > 0) {
+        const first = pageSections[0];
+        if (first.text || first.heading) setHeroIntro(first.text || first.heading || defaultIntro);
+        if (first.images && first.images.length) setHeroImage(first.images[0]);
+      }
+    } catch (e) {
+      // malformed JSON or other error - keep defaults
+      console.warn('Could not load siteContent for Services page:', e);
+    }
+  }, []);
 
   return (
   <main className="min-h-screen bg-slate-950 text-slate-100 pt-20 md:pt-24">
@@ -121,17 +205,17 @@ const ServicesPage: React.FC = () => {
             <div className="max-w-3xl">
               <p className="uppercase tracking-widest text-amber-300/90 text-xs md:text-sm">The Anatolian Table</p>
               <h1 className="text-4xl md:text-6xl font-serif text-white drop-shadow">Private Chef Services</h1>
-              <p className="mt-3 text-amber-100 text-base md:text-xl max-w-2xl">{intro}</p>
+              <p className="mt-3 text-amber-100 text-base md:text-xl max-w-2xl">{heroIntro}</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Packages */}
-      <section className="py-12 md:py-16">
+      <section className="py-12 md:py-16 services">
         <div className="container mx-auto px-6">
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-            {packages.map((p) => (
+            {servicesData.map((p) => (
               <article key={p.key} className="group bg-slate-900/80 ring-1 ring-white/10 rounded-2xl overflow-hidden shadow-xl">
                 <div className="relative h-48 sm:h-56">
                   <img src={p.img} alt={p.title} className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105" />

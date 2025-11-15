@@ -562,18 +562,11 @@ const AdminPanel: React.FC = () => {
   // İçerik Listesi bileşeni
   const ContentList = () => {
     let items: any[] = [];
-
-    switch (activeSection) {
-      case 'menu':
-        items = filteredMenuItems;
-        break;
-      default:
-        // Tür güvenliği için kontrol
-        if (Array.isArray(content[activeSection as SectionType])) {
-          items = content[activeSection as SectionType];
-        } else {
-          items = [];
-        }
+    // Menüde alt kategori varsa filtreli, yoksa tümünü göster
+    if (activeSection === 'menu') {
+      items = filteredMenuItems;
+    } else if (Array.isArray(content[activeSection as SectionType])) {
+      items = content[activeSection as SectionType];
     }
 
     return (
@@ -582,7 +575,9 @@ const AdminPanel: React.FC = () => {
           {activeSubSection || sections.find(s => s.id === activeSection)?.label}
           <button onClick={addNewItem} className="btn btn-primary ms-3">+ Add New Item</button>
         </h2>
-        
+        {items.length === 0 && (
+          <div className="no-content">No content in this section yet.<br /><button className="btn btn-warning mt-2" onClick={addNewItem}>Add First Item</button></div>
+        )}
         {items.map((item) => (
           <div key={item.id} className="content-item">
             <div className="item-header">
@@ -595,16 +590,14 @@ const AdminPanel: React.FC = () => {
                 Delete
               </button>
             </div>
-            
             <div className="item-content">
               <div className="item-text">
                 <p>{item.description}</p>
+                {/* Menu özel alanı */}
                 {activeSection === 'menu' && (
                   <p><strong>Price:</strong> {(item as MenuItem).price}</p>
                 )}
-                {activeSection === 'testimonials' && (
-                  <p><strong>Author:</strong> {(item as TestimonialItem).author} {(item as TestimonialItem).role && `(${(item as TestimonialItem).role})`}</p>
-                )}
+                {/* Services özel alanı */}
                 {activeSection === 'services' && (item as ServiceItem).details && (
                   <div>
                     <strong>Details:</strong>
@@ -615,8 +608,35 @@ const AdminPanel: React.FC = () => {
                     </ul>
                   </div>
                 )}
+                {/* Testimonials özel alanı */}
+                {activeSection === 'testimonials' && (
+                  <>
+                    <p><strong>Author:</strong> {(item as TestimonialItem).author} {(item as TestimonialItem).role && `(${(item as TestimonialItem).role})`}</p>
+                  </>
+                )}
+                {/* Contact özel alanı */}
+                {activeSection === 'contact' && (
+                  <>
+                    {(item as ContactItem).email && <p><strong>Email:</strong> {(item as ContactItem).email}</p>}
+                    {(item as ContactItem).phone && <p><strong>Phone:</strong> {(item as ContactItem).phone}</p>}
+                    {(item as ContactItem).address && <p><strong>Address:</strong> {(item as ContactItem).address}</p>}
+                    {(item as ContactItem).socialMedia && (
+                      <div>
+                        <strong>Social Media:</strong>
+                        <ul>
+                          {(item as ContactItem).socialMedia.instagram && <li>Instagram: <a href={(item as ContactItem).socialMedia.instagram} target="_blank" rel="noopener noreferrer">{(item as ContactItem).socialMedia.instagram}</a></li>}
+                          {(item as ContactItem).socialMedia.facebook && <li>Facebook: <a href={(item as ContactItem).socialMedia.facebook} target="_blank" rel="noopener noreferrer">{(item as ContactItem).socialMedia.facebook}</a></li>}
+                          {(item as ContactItem).socialMedia.twitter && <li>Twitter: <a href={(item as ContactItem).socialMedia.twitter} target="_blank" rel="noopener noreferrer">{(item as ContactItem).socialMedia.twitter}</a></li>}
+                        </ul>
+                      </div>
+                    )}
+                  </>
+                )}
+                {/* Hero özel alanı (sadece başlık, açıklama, resim) */}
+                {activeSection === 'hero' && (
+                  <></>
+                )}
               </div>
-              
               <div className="item-images">
                 {item.images && item.images.map((img: string, idx: number) => (
                   <div key={idx} className="image-thumbnail">
@@ -624,7 +644,6 @@ const AdminPanel: React.FC = () => {
                   </div>
                 ))}
               </div>
-              
               <button 
                 className="btn btn-primary edit-btn" 
                 onClick={() => editItem(item)}

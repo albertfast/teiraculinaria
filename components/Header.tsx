@@ -64,6 +64,9 @@ const Header: React.FC = () => {
               </Link>
             )
           ))}
+          <Link to="/admin-panel-new" className="text-neutral-300 hover:text-amber-400 transition-colors duration-300">
+            Admin
+          </Link>
           <a href="#contact" onClick={(e) => scrollToSection(e, '#contact')} className="bg-amber-600 text-white px-4 py-2 rounded-full hover:bg-amber-500 transition-colors duration-300 text-sm font-semibold">
             Book an Experience
           </a>
@@ -92,6 +95,9 @@ const Header: React.FC = () => {
                 </Link>
               )
             ))}
+            <Link to="/admin-panel-new" onClick={() => setIsOpen(false)} className="text-neutral-300 hover:text-amber-400 transition-colors duration-300">
+              Admin
+            </Link>
             <a href="#contact" onClick={(e) => scrollToSection(e, '#contact')} className="bg-amber-600 text-white px-6 py-2 rounded-full hover:bg-amber-500 transition-colors duration-300 font-semibold">
               Book an Experience
             </a>

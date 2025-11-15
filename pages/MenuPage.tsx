@@ -1,12 +1,11 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import parsed from '../data/parsedPdf'; // Bu PDF parse edilmiş veri, menü için admin panel verisini kullanacağız.
+import React, { useEffect, useState, useCallback } from 'react'; // Bu PDF parse edilmiş veri, menü için admin panel verisini kullanacağız.
 import MenuBackground from '../components/MenuBackground';
 
 // Fallback offers: Admin panelden henüz hiç veri gelmediğinde veya hata oluştuğunda kullanılacak varsayılan menüler.
 export const fallbackOffers = [
   {
     key: 'signature',
-    title: "Chef's Choice / Premium",
+    title: "Chef's Choice / Premium12",
     desc: 'An elegant, multi-course tasting that highlights seasonal ingredients and refined techniques. Perfect for intimate dinners or special celebrations.',
     img: './imggallery/312832450_183603154242544_3364490850470574658_n.jpg',
   },
