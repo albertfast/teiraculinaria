@@ -76,6 +76,28 @@ interface SiteContent {
   menuSections: string[]; // Tüm menü kategorilerini burada tutuyoruz
 }
 
+const rawBasePath = String((import.meta as any).env.BASE_URL ?? '/');
+const normalizedBase = rawBasePath.startsWith('/') ? rawBasePath : `/${rawBasePath}`;
+const basePath = normalizedBase.endsWith('/') ? normalizedBase : `${normalizedBase}/`;
+const isExternalAsset = (value: string) => /^(https?:|data:|\/\/)/i.test(value);
+const stripRelativePrefix = (value: string) => value.replace(/^(\.\/|\/)/, '');
+const normalizeImagePath = (value: string) => {
+  if (!value) return '';
+  if (isExternalAsset(value)) return value;
+  const trimmed = stripRelativePrefix(value);
+  return trimmed ? `./${trimmed}` : '';
+};
+const resolveImageUrl = (value: string) => {
+  if (!value) return '';
+  if (isExternalAsset(value)) return value;
+  const trimmed = stripRelativePrefix(value);
+  return trimmed ? `${basePath}${trimmed}` : '';
+};
+const buildRouteUrl = (path: string) => {
+  const trimmed = path.replace(/^\/+/, '');
+  return `${basePath}${trimmed}`;
+};
+
 // Main component for content management
 const AdminPanel: React.FC = () => {
   const navigate = useNavigate();
@@ -235,35 +257,41 @@ const AdminPanel: React.FC = () => {
         const el = root.querySelector(selector);
         return el ? el.textContent?.trim() || '' : '';
       };
+      const collectImages = (root: Element | null) => {
+        if (!root) return [];
+        return Array.from(root.querySelectorAll('img'))
+          .map((img) => normalizeImagePath((img as HTMLImageElement).getAttribute('src') || ''))
+          .filter(Boolean);
+      };
 
       // HERO
-      const heroRoot = document.querySelector('#hero') || document.querySelector('.hero');
+      const heroRoot = (document.querySelector('#hero') || document.querySelector('.hero')) as Element | null;
       if (heroRoot) {
         detected.hero.push({
           id: `hero_detected_${Date.now()}`,
           title: qText(heroRoot, 'h1, h2, .title'),
           subtitle: qText(heroRoot, 'h2, h3, .subtitle'),
           description: qText(heroRoot, 'p, .lead'),
-          images: Array.from((heroRoot as Element).querySelectorAll('img')).map((i: Element) => (i as HTMLImageElement).getAttribute('src') || ''),
+          images: collectImages(heroRoot),
           order: 0,
         });
       }
 
       // ABOUT
-      const aboutRoot = document.querySelector('#about') || document.querySelector('.about');
+      const aboutRoot = (document.querySelector('#about') || document.querySelector('.about')) as Element | null;
       if (aboutRoot) {
         detected.about.push({
           id: `about_detected_${Date.now()}`,
           title: qText(aboutRoot, 'h1, h2, .title'),
           subtitle: qText(aboutRoot, 'h2, h3, .subtitle'),
           description: qText(aboutRoot, 'p'),
-          images: Array.from((aboutRoot as Element).querySelectorAll('img')).map((i: Element) => (i as HTMLImageElement).getAttribute('src') || ''),
+          images: collectImages(aboutRoot),
           order: 0,
         });
       }
 
       // CONTACT
-      const contactRoot = document.querySelector('#contact') || document.querySelector('.contact');
+      const contactRoot = (document.querySelector('#contact') || document.querySelector('.contact')) as Element | null;
       if (contactRoot) {
         detected.contact.push({
           id: `contact_detected_${Date.now()}`,
@@ -273,7 +301,7 @@ const AdminPanel: React.FC = () => {
           email: qText(contactRoot, 'a[href^="mailto:"]') || qText(contactRoot, 'input[name="email"], .email'),
           phone: qText(contactRoot, 'a[href^="tel:"]') || qText(contactRoot, '.phone'),
           address: qText(contactRoot, '.address'),
-          images: Array.from((contactRoot as Element).querySelectorAll('img')).map((i: Element) => (i as HTMLImageElement).getAttribute('src') || ''),
+          images: collectImages(contactRoot),
           order: 0,
         });
       }
@@ -291,7 +319,7 @@ const AdminPanel: React.FC = () => {
           description: text,
           author: title,
           role,
-          images: Array.from((root as Element).querySelectorAll('img')).map((i: Element) => (i as HTMLImageElement).getAttribute('src') || ''),
+          images: collectImages(root as Element),
           order: idx,
         });
       });
@@ -307,7 +335,7 @@ const AdminPanel: React.FC = () => {
             subtitle: qText(it, '.subtitle'),
             description: qText(it, '.description, p'),
             price: qText(it, '.price, .cost'),
-            images: Array.from(it.querySelectorAll('img')).map((im: Element) => (im as HTMLImageElement).getAttribute('src') || ''),
+            images: collectImages(it as Element),
             order: iIdx,
             category: qText(root, 'h2, h3') || '',
           });
@@ -323,7 +351,7 @@ const AdminPanel: React.FC = () => {
             title: qText(it, 'h3, .title'),
             subtitle: qText(it, '.subtitle'),
             description: qText(it, 'p, .description'),
-            images: Array.from(it.querySelectorAll('img')).map((im: Element) => (im as HTMLImageElement).getAttribute('src') || ''),
+            images: collectImages(it as Element),
             order: iIdx,
           });
         });
@@ -336,7 +364,7 @@ const AdminPanel: React.FC = () => {
         const heading = qText(sec, 'h1, h2, h3, .title');
         const html = (sec as Element).innerHTML || '';
         const text = (sec as Element).textContent?.trim() || '';
-        const images = Array.from((sec as Element).querySelectorAll('img')).map((i: Element) => (i as HTMLImageElement).getAttribute('src') || '');
+        const images = collectImages(sec as Element);
         if (heading || text || images.length) {
           pageSections.push({
             id: `section_${Date.now()}_${idx}`,
@@ -374,34 +402,36 @@ const AdminPanel: React.FC = () => {
 
   // Load available images (Gerçek uygulamada bir API'den gelmeli)
   const loadAvailableImages = () => {
-    // We're using real image files from the imggallery folder
-    const imageList = [
-      '/imggallery/146036331_2570005219790657_2835741437971567938_n.jpg',
-      '/imggallery/149537444_115806570503750_6955106662995791129_n.jpg',
-      '/imggallery/278237612_128420249532692_7345261953775011443_n.jpg',
-      '/imggallery/278530833_660667775045864_1228330850447914314_n.jpg',
-      '/imggallery/280949690_725467548767333_4553270213043954652_n.jpg',
-      '/imggallery/281702814_728529544951109_6603836699030402746_n.jpg',
-      '/imggallery/283669946_4610482689053285_5972101986939321638_n.jpg',
-      '/imggallery/289888444_764784084705431_5104627132645856332_n.jpg',
-      '/imggallery/290201033_365343522335822_6989121683645521651_n.jpg',
-      '/imggallery/298262238_1003468893663263_5635158051316616602_n.jpg',
-      '/imggallery/299220748_486389583312196_2918701892607691025_n.jpg',
-      '/imggallery/299622273_867508887542151_6159437778816378211_n.jpg',
-      '/imggallery/306431890_838509097573244_4219760642394676583_n.jpg',
-      '/imggallery/310038471_641913360867435_675961683670589393_n.jpg',
-      '/imggallery/312832450_183603154242544_3364490850470574658_n.jpg',
-      '/imggallery/313873528_1866452180360149_4966383405849033872_n.jpg',
-      '/imggallery/316119619_6422508417765998_6768193420321574199_n.jpg',
-      '/imggallery/318235503_536005258138307_7765495500139449825_n.jpg',
-      '/imggallery/324544066_152195107605724_1918904625421334616_n.jpg',
-      '/imggallery/339508856_885513272544585_8268982997877371805_n.jpg',
-      '/imggallery/340490753_536729521725498_7803232779063458043_n.jpg',
-      '/imggallery/denizsezeridea.jpeg',
-      '/imggallery/vegetable.jpg',
-      '/imggallery/vegi.jpeg'
+    const galleryFiles = [
+      '146036331_2570005219790657_2835741437971567938_n.jpg',
+      '149537444_115806570503750_6955106662995791129_n.jpg',
+      '278237612_128420249532692_7345261953775011443_n.jpg',
+      '278530833_660667775045864_1228330850447914314_n.jpg',
+      '280949690_725467548767333_4553270213043954652_n.jpg',
+      '281702814_728529544951109_6603836699030402746_n.jpg',
+      '283669946_4610482689053285_5972101986939321638_n.jpg',
+      '289888444_764784084705431_5104627132645856332_n.jpg',
+      '290201033_365343522335822_6989121683645521651_n.jpg',
+      '298262238_1003468893663263_5635158051316616602_n.jpg',
+      '299220748_486389583312196_2918701892607691025_n.jpg',
+      '299622273_867508887542151_6159437778816378211_n.jpg',
+      '306431890_838509097573244_4219760642394676583_n.jpg',
+      '310038471_641913360867435_675961683670589393_n.jpg',
+      '312832450_183603154242544_3364490850470574658_n.jpg',
+      '313873528_1866452180360149_4966383405849033872_n.jpg',
+      '316119619_6422508417765998_6768193420321574199_n.jpg',
+      '318235503_536005258138307_7765495500139449825_n.jpg',
+      '324544066_152195107605724_1918904625421334616_n.jpg',
+      '339508856_885513272544585_8268982997877371805_n.jpg',
+      '340490753_536729521725498_7803232779063458043_n.jpg',
+      'denizsezeridea.jpeg',
+      'vegetable.jpg',
+      'vegi.jpeg'
     ];
-    setAvailableImages(imageList);
+    const normalized = galleryFiles
+      .map((file) => normalizeImagePath(`./imggallery/${file}`))
+      .filter(Boolean);
+    setAvailableImages(normalized);
   };
 
   // Notification display function
@@ -525,7 +555,8 @@ const AdminPanel: React.FC = () => {
   const editItem = (item: ContentItem) => {
     setEditingItem(JSON.parse(JSON.stringify(item))); // Deep clone
     setIsEditing(true);
-    setSelectedImages(item.images || []);
+    const normalized = (item.images || []).map(normalizeImagePath).filter(Boolean);
+    setSelectedImages(normalized);
   };
 
   // Delete item
@@ -609,13 +640,13 @@ const AdminPanel: React.FC = () => {
   // Image selection
   const handleImageSelect = (imageUrl: string) => {
     if (!editingItem) return;
-    
-    // Check if image is already selected
-    if (selectedImages.includes(imageUrl)) {
-      setSelectedImages(selectedImages.filter(img => img !== imageUrl));
-    } else {
-      setSelectedImages([...selectedImages, imageUrl]);
-    }
+    const normalized = normalizeImagePath(imageUrl);
+    if (!normalized) return;
+    setSelectedImages((prev) =>
+      prev.includes(normalized)
+        ? prev.filter((img) => img !== normalized)
+        : [...prev, normalized]
+    );
   };
 
   // Image upload
@@ -628,7 +659,16 @@ const AdminPanel: React.FC = () => {
     const numberOfFiles = Math.min(files.length, availableImages.length);
     const selectedFromGallery = availableImages.slice(0, numberOfFiles);
     
-    setSelectedImages((prev) => [...prev, ...selectedFromGallery]);
+    setSelectedImages((prev) => {
+      const next = [...prev];
+      selectedFromGallery.forEach((img) => {
+        const normalized = normalizeImagePath(img);
+        if (normalized && !next.includes(normalized)) {
+          next.push(normalized);
+        }
+      });
+      return next;
+    });
     
     // Notify the user that the operation is complete
     showNotificationMessage('Images uploaded');
@@ -641,9 +681,10 @@ const AdminPanel: React.FC = () => {
     if (!editingItem) return;
     
     // Add selected images to editingItem
+    const sanitizedImages = selectedImages.map(normalizeImagePath).filter(Boolean);
     const updatedItem = {
       ...editingItem,
-      images: selectedImages
+      images: sanitizedImages
     };
     
   // Update existing content
@@ -698,14 +739,14 @@ const AdminPanel: React.FC = () => {
     <header className={`header ${isDarkMode ? 'dark' : 'light'}`}>
       <div className="logo-container">
         <div className="logo">
-          <img src="/imggallery/denizsezeridea.jpeg" alt="Logo" />
+          <img src={resolveImageUrl('./imggallery/denizsezeridea.jpeg')} alt="Logo" />
         </div>
         <h1>Deniz Sezer | Admin Panel</h1>
       </div>
       <div className="header-actions">
         <button onClick={() => navigate('/contact')} className="btn-outline">Contact</button>
         <button onClick={() => navigate('/')} className="btn-outline">Home</button>
-        <button onClick={() => window.open('/admin-local', '_blank')} className="btn-info">Modern Admin</button>
+        <button onClick={() => window.open(buildRouteUrl('admin'), '_blank')} className="btn-info">Modern Admin</button>
         <button onClick={() => navigate('/menu')} className="btn-warning">Menu</button>
         <button onClick={detectWebsiteContent} className="btn-primary">Detect Content</button>
         <button onClick={() => setShowPageSections(!showPageSections)} className="btn-info">Show Page Sections</button>
@@ -880,11 +921,15 @@ const AdminPanel: React.FC = () => {
                   
                   {item.images && item.images.length > 0 && (
                     <div className="item-images">
-                      {item.images.map((img: string, idx: number) => (
-                        <div key={idx} className="image-thumbnail">
-                          <img src={img} alt={`${item.title} ${idx+1}`} />
-                        </div>
-                      ))}
+                      {item.images.map((img: string, idx: number) => {
+                        const src = resolveImageUrl(img);
+                        if (!src) return null;
+                        return (
+                          <div key={`${item.id}-img-${idx}`} className="image-thumbnail">
+                            <img src={src} alt={`${item.title} ${idx+1}`} />
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -1134,21 +1179,25 @@ const AdminPanel: React.FC = () => {
                 <div className="selected-images">
                   <h4>Selected Images</h4>
                   <div className="image-grid">
-                    {selectedImages.length === 0 ? (
+                  {selectedImages.length === 0 ? (
                       <p className="no-images">No images selected yet</p>
                     ) : (
-                      selectedImages.map((img, idx) => (
-                        <div key={idx} className="image-thumbnail selected">
-                          <img src={img} alt={`Selected ${idx+1}`} />
-                          <button 
-                            type="button"
-                            onClick={() => handleImageSelect(img)}
-                            className="remove-btn"
-                          >
-                            &times;
-                          </button>
-                        </div>
-                      ))
+                      selectedImages.map((img, idx) => {
+                        const src = resolveImageUrl(img);
+                        if (!src) return null;
+                        return (
+                          <div key={`selected-${idx}-${img}`} className="image-thumbnail selected">
+                            <img src={src} alt={`Selected ${idx+1}`} />
+                            <button 
+                              type="button"
+                              onClick={() => handleImageSelect(img)}
+                              className="remove-btn"
+                            >
+                              &times;
+                            </button>
+                          </div>
+                        );
+                      })
                     )}
                   </div>
                 </div>
@@ -1176,15 +1225,19 @@ const AdminPanel: React.FC = () => {
                 <div className="available-images">
                   <h4>Mevcut Resimler</h4>
                   <div className="image-grid">
-                    {availableImages.map((img, idx) => (
-                      <div 
-                        key={idx} 
-                        className={`image-thumbnail ${selectedImages.includes(img) ? 'selected' : ''}`}
-                        onClick={() => handleImageSelect(img)}
-                      >
-                        <img src={img} alt={`Available ${idx+1}`} />
-                      </div>
-                    ))}
+                    {availableImages.map((img, idx) => {
+                      const src = resolveImageUrl(img);
+                      if (!src) return null;
+                      return (
+                        <div 
+                          key={`available-${idx}-${img}`} 
+                          className={`image-thumbnail ${selectedImages.includes(img) ? 'selected' : ''}`}
+                          onClick={() => handleImageSelect(img)}
+                        >
+                          <img src={src} alt={`Available ${idx+1}`} />
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
