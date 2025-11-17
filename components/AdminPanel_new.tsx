@@ -86,12 +86,21 @@ const AdminPanel: React.FC = () => {
   const [publishing, setPublishing] = useState<boolean>(false);
   const [autoPublish, setAutoPublish] = useState<boolean>(true);
   const [githubCreds, setGithubCreds] = useState<GitHubCredentials | null>(() => getStoredGitHubCreds());
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
-  // Sayfa yüklendiğinde içeriği ve mevcut resimleri yükle
+  // Sayfa yüklendiğinde yetkiyi kontrol et ve içeriği yükle
   useEffect(() => {
-    loadContent();
-    loadAvailableImages();
-  }, []);
+    const authed = localStorage.getItem('admin-auth') === 'true';
+    if (!authed) {
+      navigate('/admin-login');
+    } else {
+      setIsAuthorized(true);
+      loadContent();
+      loadAvailableImages();
+    }
+    setAuthChecked(true);
+  }, [navigate]);
 
   useEffect(() => {
     const syncCreds = () => setGithubCreds(getStoredGitHubCreds());
@@ -661,6 +670,12 @@ const AdminPanel: React.FC = () => {
   };
 
   // Header component
+  const handleLogout = () => {
+    localStorage.removeItem('admin-auth');
+    setIsAuthorized(false);
+    navigate('/admin-login');
+  };
+
   const Header = () => (
     <header className={`header ${isDarkMode ? 'dark' : 'light'}`}>
       <div className="logo-container">
@@ -670,28 +685,24 @@ const AdminPanel: React.FC = () => {
         <h1>Deniz Sezer | Admin Panel</h1>
       </div>
       <div className="header-actions">
-        <button onClick={() => navigate('/contact')} className="btn-outline">Contact</button>
-        <button onClick={() => navigate('/')} className="btn-outline">Home</button>
-        <button onClick={() => window.open(buildRouteUrl('admin'), '_blank')} className="btn-info">Modern Admin</button>
-        <button onClick={() => navigate('/menu')} className="btn-warning">Menu</button>
-        <button onClick={detectWebsiteContent} className="btn-primary">Detect Content</button>
-        <button onClick={() => setShowPageSections(!showPageSections)} className="btn-info">Show Page Sections</button>
+        <button onClick={() => window.open(buildRouteUrl(''), '_blank')} className="btn-outline">View Website</button>
+        <button onClick={() => setShowPageSections(!showPageSections)} className="btn-outline">Page Sections</button>
+        <button onClick={detectWebsiteContent} className="btn-warning">Detect Content</button>
         <button onClick={() => {
-          // Export JSON: open in new tab
           const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(content, null, 2));
           window.open(dataStr, '_blank');
-        }} className="btn-outline">Export JSON</button>
+        }} className="btn-outline small">Export JSON</button>
         <button onClick={() => {
-          // Copy JSON to clipboard
           navigator.clipboard?.writeText(JSON.stringify(content, null, 2)).then(() => {
             showNotificationMessage('Content JSON copied to clipboard');
           }).catch(() => {
             showNotificationMessage('Failed to copy JSON to clipboard', 'error');
           });
-        }} className="btn-outline">Copy JSON</button>
-        <button onClick={toggleDarkMode} className={`btn-theme ${isDarkMode ? 'light' : 'dark'}`}>
-          {isDarkMode ? '🌞' : '🌙'}
+        }} className="btn-outline small">Copy JSON</button>
+        <button onClick={toggleDarkMode} className="btn-outline small">
+          {isDarkMode ? 'Light' : 'Dark'}
         </button>
+        <button onClick={handleLogout} className="btn-secondary">Logout</button>
       </div>
     </header>
   );
@@ -1180,6 +1191,18 @@ const AdminPanel: React.FC = () => {
   };
 
   // Ana sayfa render
+  if (!authChecked) {
+    return (
+      <div className="admin-panel-loading">
+        Checking admin access...
+      </div>
+    );
+  }
+
+  if (!isAuthorized) {
+    return null;
+  }
+
   return (
     <div className={`admin-panel ${isDarkMode ? 'dark-mode' : 'light-mode'}`}>
       <Header />
