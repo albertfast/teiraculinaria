@@ -1,0 +1,149 @@
+{
+  "menuSections": [
+    "Chef's Choice / Premium12",
+    "Modern Tasting Menu",
+    "Family Style / Share Plates",
+    "Blindfolded Dinner (Dine in the Dark)",
+    "Events & Catering Menus",
+    "Seasonal Specials & Add-ons"
+  ],
+  "menu": [
+    {
+      "id": "signature",
+      "title": "Chef's Choice / Premium12",
+      "description": "An elegant, multi-course tasting that highlights seasonal ingredients and refined techniques. Perfect for intimate dinners or special celebrations.",
+      "images": [
+        "./imggallery/312832450_183603154242544_3364490850470574658_n.jpg"
+      ],
+      "order": 1,
+      "category": "Chef's Choice / Premium12"
+    },
+    {
+      "id": "tasting",
+      "title": "Modern Tasting Menu",
+      "description": "A curated 6–7 course degustation showcasing the chef’s signature dishes and inventive flavor pairings. Minimum group size advised for full experience.",
+      "images": [
+        "./imggallery/310038471_641913360867435_675961683670589393_n.jpg"
+      ],
+      "order": 2,
+      "category": "Modern Tasting Menu"
+    },
+    {
+      "id": "family",
+      "title": "Family Style / Share Plates",
+      "description": "Relaxed communal dining with a selection of savory plates meant to be shared — approachable, delicious, and customizable.",
+      "images": [
+        "./imggallery/299622273_867508887542151_6159437778816378211_n.jpg"
+      ],
+      "order": 3,
+      "category": "Family Style / Share Plates"
+    },
+    {
+      "id": "blindfold",
+      "title": "Blindfolded Dinner (Dine in the Dark)",
+      "description": "A sensory-focused 5-course experience guided by the chef — taste and texture take center stage in an unforgettable tasting.",
+      "images": [
+        "./imggallery/316119619_6422508417765998_6768193420321574199_n.jpg"
+      ],
+      "order": 4,
+      "category": "Blindfolded Dinner (Dine in the Dark)"
+    },
+    {
+      "id": "catering",
+      "title": "Events & Catering Menus",
+      "description": "Full-service catering packages for corporate events, weddings, and large gatherings — thoughtfully sourced and executed to your needs.",
+      "images": [
+        "./imggallery/324544066_152195107605724_1918904625421334616_n.jpg"
+      ],
+      "order": 5,
+      "category": "Events & Catering Menus"
+    },
+    {
+      "id": "special",
+      "title": "Seasonal Specials & Add-ons",
+      "description": "Limited-time offerings and curated add-ons like sommelier pairing, on-site service staff, and decorative plating themes.",
+      "images": [
+        "./imggallery/denizsezeridea.jpeg"
+      ],
+      "order": 6,
+      "category": "Seasonal Specials & Add-ons"
+    }
+  ],
+  "services": [
+    {
+      "id": "modern-fine-dining",
+      "title": "3 to 5‑Course Modern Fine Dining",
+      "description": "An unforgettable evening crafted to your tastes — seasonal ingredients, refined techniques and elegant plating.",
+      "images": [
+        "./imggallery/299220748_486389583312196_2918701892607691025_n.jpg"
+      ],
+      "order": 1,
+      "details": [
+        "Private Chef Deniz Sezer",
+        "All ingredients & shopping",
+        "On‑site cooking, service & cleanup"
+      ]
+    },
+    {
+      "id": "romantic-dinner",
+      "title": "Romantic Dinner with a Private Chef",
+      "description": "A 5‑course fine‑dining experience tailored for two. Celebrate with a bouquet of red roses and chilled French champagne.",
+      "images": [
+        "./imggallery/351088026_944585160151459_2706183776673791694_n.jpg"
+      ],
+      "order": 2,
+      "details": [
+        "Private Chef, bespoke 5‑course menu",
+        "Bouquet of red roses & French champagne",
+        "Full post‑dinner cleanup"
+      ]
+    },
+    {
+      "id": "chefs-choice",
+      "title": "Chef's Choice / Premium Degustation",
+      "description": "A curated 7‑course dégustation spotlighting signature dishes and inventive pairings. Designed around your preferences.",
+      "images": [
+        "./imggallery/318235503_536005258138307_7765495500139449825_n.jpg"
+      ],
+      "order": 3,
+      "details": [
+        "Seasonal tasting progression",
+        "Ingredient sourcing & menu design",
+        "Service staff available on request"
+      ]
+    },
+    {
+      "id": "family-style",
+      "title": "Family Style Share Plates",
+      "description": "Seven gourmet dishes served family‑style. A convivial, customizable feast with something for every guest.",
+      "images": [
+        "./imggallery/299622273_867508887542151_6159437778816378211_n.jpg"
+      ],
+      "order": 4,
+      "details": [
+        "Private chef & all ingredients",
+        "Share‑plate menu tailored to you",
+        "Service & cleanup included"
+      ]
+    },
+    {
+      "id": "blindfolded",
+      "title": "Blindfolded Dinner — Dine in the Dark",
+      "description": "A sensory 5‑course journey guided by your chef. Explore textures and flavors without sight — unforgettable.",
+      "images": [
+        "./imggallery/316119619_6422508417765998_6768193420321574199_n.jpg"
+      ],
+      "order": 5,
+      "details": [
+        "Custom 5‑course tasting",
+        "Your own blindfolds provided",
+        "Shopping, cooking, service & cleanup"
+      ]
+    }
+  ],
+  "hero": [],
+  "testimonials": [],
+  "about": [],
+  "contact": [],
+  "pages": {}
+}

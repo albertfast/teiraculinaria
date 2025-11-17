@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import parsed from '../data/parsedPdf';
+import { servicesPackages } from '@/src/defaultContent';
+import { loadSiteContent } from '@/src/siteContentService';
+import type { ServiceItem, SiteContent, PageSection } from '@/src/siteContentTypes';
 
 /*
   A completely refreshed Services page inspired by the provided reference: 
@@ -17,71 +20,14 @@ type Pkg = {
   includes: string[];
 };
 
-const packages: Pkg[] = [
-  {
-    key: 'modern-fine-dining',
-    title: '3 to 5‑Course Modern Fine Dining',
-    badge: 'Popular',
-  img: './imggallery/299220748_486389583312196_2918701892607691025_n.jpg',
-    blurb:
-      'An unforgettable evening crafted to your tastes — seasonal ingredients, refined techniques and elegant plating.',
-    includes: [
-      'Private Chef Deniz Sezer',
-      'All ingredients & shopping',
-      'On‑site cooking, service & cleanup'
-    ]
-  },
-  {
-    key: 'romantic-dinner',
-    title: 'Romantic Dinner with a Private Chef',
-  img: './imggallery/351088026_944585160151459_2706183776673791694_n.jpg',
-    blurb:
-      'A 5‑course fine‑dining experience tailored for two. Celebrate with a bouquet of red roses and chilled French champagne.',
-    includes: [
-      'Private Chef, bespoke 5‑course menu',
-      'Bouquet of red roses & French champagne',
-      'Full post‑dinner cleanup'
-    ]
-  },
-  {
-    key: 'chefs-choice',
-    title: "Chef's Choice / Premium Degustation",
-  img: './imggallery/318235503_536005258138307_7765495500139449825_n.jpg',
-    blurb:
-      'A curated 7‑course dégustation spotlighting signature dishes and inventive pairings. Designed around your preferences.',
-    includes: [
-      'Seasonal tasting progression',
-      'Ingredient sourcing & menu design',
-      'Service staff available on request'
-    ]
-  },
-  {
-    key: 'family-style',
-    title: 'Family Style Share Plates',
-  img: './imggallery/299622273_867508887542151_6159437778816378211_n.jpg',
-    blurb:
-      'Seven gourmet dishes served family‑style. A convivial, customizable feast with something for every guest.',
-    includes: [
-      'Private chef & all ingredients',
-      'Share‑plate menu tailored to you',
-      'Service & cleanup included'
-    ]
-  },
-  {
-    key: 'blindfolded',
-    title: 'Blindfolded Dinner — Dine in the Dark',
-  img: './imggallery/316119619_6422508417765998_6768193420321574199_n.jpg',
-    blurb:
-      'A sensory 5‑course journey guided by your chef. Explore textures and flavors without sight — unforgettable.',
-    includes: [
-      'Custom 5‑course tasting',
-      'Your own blindfolds provided',
-      'Shopping, cooking, service & cleanup'
-    ]
-  }
-];
-
-export { packages };
+const packages: Pkg[] = servicesPackages.map((pkg) => ({
+  key: pkg.key,
+  title: pkg.title,
+  badge: pkg.badge,
+  img: pkg.img,
+  blurb: pkg.blurb,
+  includes: pkg.includes,
+}));
 
 const alwaysIncluded = [
   'Bespoke menu design tailored to preferences & dietary needs',
@@ -108,86 +54,56 @@ const ServicesPage: React.FC = () => {
   const defaultIntro =
     'Bespoke private chef experiences tailored to your tastes — Michelin‑trained craft with Anatolian soul.';
 
-  // Local state that will be populated from admin panel's `siteContent` (localStorage)
-  type ServiceItem = {
-    id: string;
-    title?: string;
-    subtitle?: string;
-    description?: string;
-    images?: string[];
-    details?: string[];
-    order?: number;
-  };
-
-  type PageSection = {
-    heading?: string;
-    text?: string;
-    images?: string[];
-  };
-
   const [servicesData, setServicesData] = useState<Pkg[]>(packages);
   const [heroIntro, setHeroIntro] = useState<string>(defaultIntro);
   const [heroImage, setHeroImage] = useState<string>('./imggallery/denizsezeridea.jpeg');
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem('siteContent');
-      let site: any = raw ? JSON.parse(raw) : {};
+    let cancelled = false;
 
-      // Always detect services from DOM and update
-      const detectedServices: any[] = [];
-      const packageArticles = document.querySelectorAll('section.services article');
-      console.log('Found package articles:', packageArticles.length);
-      packageArticles.forEach((article, index) => {
-        const img = article.querySelector('img')?.getAttribute('src') || '';
-        const title = article.querySelector('h3')?.textContent?.trim() || '';
-        const blurb = article.querySelector('p')?.textContent?.trim() || '';
-        const includes: string[] = [];
-        article.querySelectorAll('li span:last-child').forEach(li => {
-          const text = li.textContent?.trim();
-          if (text) includes.push(text);
-        });
-        console.log(`Article ${index}: title=${title}, blurb=${blurb}, includes=${includes.length}`);
-        if (title) {
-          detectedServices.push({
-            id: `service_${index}`,
-            title,
-            description: blurb,
-            images: [img],
-            order: index + 1,
-            details: includes,
-          });
-        }
-      });
-      if (detectedServices.length > 0) {
-        site.services = detectedServices;
-        localStorage.setItem('siteContent', JSON.stringify(site));
-        console.log('Updated siteContent with detected services:', detectedServices.length);
-      }
+    const mapServices = (items: ServiceItem[]) =>
+      items.map((s: ServiceItem) => ({
+        key: s.id || (s.title || '').toLowerCase().replace(/[^a-z0-9]+/gi, '-'),
+        title: s.title || s.subtitle || 'Service',
+        img: (s.images && s.images[0]) || './imggallery/denizsezeridea.jpeg',
+        blurb: s.description || '',
+        includes: Array.isArray(s.details) && s.details.length ? s.details : [],
+      }));
 
-      // If admin provided explicit services array, map it to our Pkg shape
+    const applyContent = (site: SiteContent) => {
+      if (!site) return;
       if (Array.isArray(site.services) && site.services.length > 0) {
-        const mapped: Pkg[] = site.services.map((s: ServiceItem) => ({
-          key: s.id || (s.title || '').toLowerCase().replace(/[^a-z0-9]+/gi, '-'),
-          title: s.title || s.subtitle || 'Service',
-          img: (s.images && s.images[0]) || './imggallery/denizsezeridea.jpeg',
-          blurb: s.description || '',
-          includes: Array.isArray(s.details) && s.details.length ? s.details : [],
-        }));
-        setServicesData(mapped);
+        setServicesData(mapServices(site.services));
       }
-
-      // Also allow a page-level hero override from pages['/services']
       const pageSections: PageSection[] | undefined = site.pages && site.pages['/services'];
       if (Array.isArray(pageSections) && pageSections.length > 0) {
         const first = pageSections[0];
         if (first.text || first.heading) setHeroIntro(first.text || first.heading || defaultIntro);
         if (first.images && first.images.length) setHeroImage(first.images[0]);
       }
-    } catch (e) {
-      // malformed JSON or other error - keep defaults
-      console.warn('Could not load siteContent for Services page:', e);
-    }
+    };
+
+    const hydrate = async () => {
+      const site = await loadSiteContent();
+      if (!cancelled) applyContent(site);
+    };
+
+    hydrate();
+
+    const handleUpdate = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const updated = customEvent.detail?.content as SiteContent | undefined;
+      if (updated && !cancelled) {
+        applyContent(updated);
+      }
+    };
+
+    window.addEventListener('siteContentUpdated', handleUpdate as EventListener);
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener('siteContentUpdated', handleUpdate as EventListener);
+    };
   }, []);
 
   return (

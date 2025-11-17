@@ -2,15 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import Ballpit from '../components/Ballpit';
 import LightBallpit from '../components/LightBallpit';
-
-interface AboutItem {
-  id: string;
-  title: string;
-  subtitle?: string;
-  description: string;
-  images: string[];
-  order: number;
-}
+import { loadSiteContent } from '@/src/siteContentService';
+import type { AboutItem, SiteContent } from '@/src/siteContentTypes';
 
 const AboutPage: React.FC = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -27,17 +20,29 @@ const AboutPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem('siteContent');
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed.about)) {
-          setAboutItems(parsed.about);
-        }
+    let cancelled = false;
+    const hydrate = async () => {
+      const content = await loadSiteContent();
+      if (!cancelled && Array.isArray(content.about)) {
+        setAboutItems(content.about as AboutItem[]);
       }
-    } catch (e) {
-      setAboutItems([]);
-    }
+    };
+    hydrate();
+
+    const handleUpdate = (event: Event) => {
+      const custom = event as CustomEvent;
+      const updated = custom.detail?.content as SiteContent | undefined;
+      if (!cancelled && updated && Array.isArray(updated.about)) {
+        setAboutItems(updated.about as AboutItem[]);
+      }
+    };
+
+    window.addEventListener('siteContentUpdated', handleUpdate as EventListener);
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener('siteContentUpdated', handleUpdate as EventListener);
+    };
   }, []);
 
   return (

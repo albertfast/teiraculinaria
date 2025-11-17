@@ -1,80 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './AdminPanel.css';
-import { fallbackOffers } from '../pages/MenuPage';
-import { packages as servicesPackages } from '../pages/ServicesPage'; // Harici stil dosyanız
-
-// Data types (AdminPanel_new.tsx ve MenuPage.tsx arasında paylaşılabilecek tipler)
-interface BaseItem {
-  id: string;
-  title: string;
-  subtitle?: string;
-  description: string;
-  images: string[];
-  order: number;
-}
-
-interface MenuItem extends BaseItem {
-  price?: string;
-  category?: string;
-}
-
-interface ServiceItem extends BaseItem {
-  details?: string[];
-}
-
-interface HeroItem extends BaseItem {
-  // Special fields can be added for Hero section
-}
-
-interface TestimonialItem extends BaseItem {
-  author?: string;
-  role?: string;
-}
-
-interface AboutItem extends BaseItem {
-  // Special fields can be added for About section
-}
-
-interface ContactItem extends BaseItem {
-  email?: string;
-  phone?: string;
-  address?: string;
-  socialMedia?: {
-    instagram?: string;
-    facebook?: string;
-    twitter?: string;
-  };
-}
-
-// Page section captured from live DOM for dynamic pages
-interface PageSection {
-  id: string;
-  key?: string;
-  heading?: string;
-  html?: string; // small HTML snippet for preview
-  text?: string; // plain text
-  images: string[];
-  order: number;
-}
-
-// Combining all content types into a single type
-type ContentItem = MenuItem | ServiceItem | HeroItem | TestimonialItem | AboutItem | ContactItem;
+import { defaultSiteContent, fallbackMenuOffers, servicesPackages } from '@/src/defaultContent';
+import {
+  loadSiteContent,
+  saveSiteContentLocally,
+  dispatchSiteContentEvent,
+  publishSiteContentToGitHub,
+  getStoredGitHubCreds,
+  type GitHubCredentials,
+} from '@/src/siteContentService';
+import type {
+  SiteContent,
+  MenuItem,
+  ServiceItem,
+  HeroItem,
+  TestimonialItem,
+  AboutItem,
+  ContactItem,
+  PageSection,
+  ContentItem,
+} from '@/src/siteContentTypes';
 
 // Section types
 type SectionType = 'menu' | 'services' | 'hero' | 'testimonials' | 'about' | 'contact';
-
-// Ana Site İçeriği arayüzü
-interface SiteContent {
-  menu: MenuItem[];
-  services: ServiceItem[];
-  hero: HeroItem[];
-  testimonials: TestimonialItem[];
-  about: AboutItem[];
-  contact: ContactItem[];
-  pages: Record<string, PageSection[]>;
-  menuSections: string[]; // Tüm menü kategorilerini burada tutuyoruz
-}
 
 const rawBasePath = String((import.meta as any).env.BASE_URL ?? '/');
 const normalizedBase = rawBasePath.startsWith('/') ? rawBasePath : `/${rawBasePath}`;
@@ -134,11 +83,20 @@ const AdminPanel: React.FC = () => {
   const [availableImages, setAvailableImages] = useState<string[]>([]);
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
   const [showPageSections, setShowPageSections] = useState<boolean>(false);
+  const [publishing, setPublishing] = useState<boolean>(false);
+  const [autoPublish, setAutoPublish] = useState<boolean>(true);
+  const [githubCreds, setGithubCreds] = useState<GitHubCredentials | null>(() => getStoredGitHubCreds());
 
   // Sayfa yüklendiğinde içeriği ve mevcut resimleri yükle
   useEffect(() => {
     loadContent();
     loadAvailableImages();
+  }, []);
+
+  useEffect(() => {
+    const syncCreds = () => setGithubCreds(getStoredGitHubCreds());
+    window.addEventListener('storage', syncCreds);
+    return () => window.removeEventListener('storage', syncCreds);
   }, []);
 
   const PageSectionsModal = () => {
@@ -175,73 +133,54 @@ const AdminPanel: React.FC = () => {
   };
 
 
-  // Load content (from localStorage or API)
-  const loadContent = () => {
+  const cloneDefaultContent = (): SiteContent => JSON.parse(JSON.stringify(defaultSiteContent));
+
+  const hydrateContent = (data: SiteContent | null | undefined): SiteContent => {
+    if (!data) return cloneDefaultContent();
+    const copy: SiteContent = {
+      ...data,
+      menuSections: Array.isArray(data.menuSections) && data.menuSections.length
+        ? data.menuSections
+        : fallbackMenuOffers.map(o => o.title),
+      menu: Array.isArray(data.menu) && data.menu.length
+        ? data.menu
+        : fallbackMenuOffers.map((o, index) => ({
+            id: o.key,
+            title: o.title,
+            description: o.desc,
+            images: [o.img],
+            order: index + 1,
+            category: o.title,
+          })),
+      services: Array.isArray(data.services) && data.services.length
+        ? data.services
+        : servicesPackages.map((p, index) => ({
+            id: p.key,
+            title: p.title,
+            description: p.blurb,
+            images: [p.img],
+            order: index + 1,
+            details: p.includes,
+          })),
+      hero: Array.isArray(data.hero) ? data.hero : [],
+      testimonials: Array.isArray(data.testimonials) ? data.testimonials : [],
+      about: Array.isArray(data.about) ? data.about : [],
+      contact: Array.isArray(data.contact) ? data.contact : [],
+      pages: data.pages || {},
+    };
+    return copy;
+  };
+
+  // Load content (from remote JSON or fallback)
+  const loadContent = async () => {
     try {
-      const savedContent = localStorage.getItem('siteContent');
-      if (savedContent) {
-        const parsedContent: SiteContent = JSON.parse(savedContent); // Tip güvenliği
-        // Eğer menuSections boşsa, fallbackOffers'tan oluştur
-        if (!parsedContent.menuSections || parsedContent.menuSections.length === 0) {
-          parsedContent.menuSections = fallbackOffers.map(o => o.title);
-        }
-        // Eğer menu boşsa, fallbackOffers'tan oluştur
-        if (!parsedContent.menu || parsedContent.menu.length === 0) {
-          parsedContent.menu = fallbackOffers.map((o, index) => ({
-            id: o.key,
-            title: o.title,
-            description: o.desc,
-            images: [o.img],
-            order: index + 1,
-            category: o.title,
-          }));
-        }
-        // Eğer services boşsa, servicesPackages'tan oluştur
-        if (!parsedContent.services || parsedContent.services.length === 0) {
-          parsedContent.services = servicesPackages.map((p, index) => ({
-            id: p.key,
-            title: p.title,
-            description: p.blurb,
-            images: [p.img],
-            order: index + 1,
-            details: p.includes,
-          }));
-        }
-        // Ensure pages is an object
-        parsedContent.pages = parsedContent.pages || {};
-        setContent(parsedContent);
-        showNotificationMessage('Content loaded successfully');
-      } else {
-        // If there is no saved content, create content from fallbackOffers
-        const fallbackContent: SiteContent = {
-          menuSections: fallbackOffers.map(o => o.title),
-          menu: fallbackOffers.map((o, index) => ({
-            id: o.key,
-            title: o.title,
-            description: o.desc,
-            images: [o.img],
-            order: index + 1,
-            category: o.title,
-          })),
-          services: servicesPackages.map((p, index) => ({
-            id: p.key,
-            title: p.title,
-            description: p.blurb,
-            images: [p.img],
-            order: index + 1,
-            details: p.includes,
-          })),
-          hero: [],
-          testimonials: [],
-          about: [],
-          contact: [],
-          pages: {},
-        };
-        setContent(fallbackContent);
-        showNotificationMessage('Content loaded from fallback data');
-      }
+      const loaded = await loadSiteContent({ refresh: true });
+      const safeContent = hydrateContent(loaded);
+      setContent(safeContent);
+      showNotificationMessage('Content loaded successfully');
     } catch (error) {
       console.error('Error loading content:', error);
+      setContent(cloneDefaultContent());
       showNotificationMessage('Error loading content', 'error');
     }
   };
@@ -434,6 +373,8 @@ const AdminPanel: React.FC = () => {
     setAvailableImages(normalized);
   };
 
+  const refreshGithubCreds = () => setGithubCreds(getStoredGitHubCreds());
+
   // Notification display function
     const showNotificationMessage = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
       setShowNotification({show: true, message, type});
@@ -442,19 +383,18 @@ const AdminPanel: React.FC = () => {
       }, 3000);
     };
 
-  // Save changes
-  const saveChanges = () => {
+  // Persist changes locally and optionally auto publish
+  const saveChanges = async () => {
     try {
-      const toSave = { ...content }; // 'content' zaten 'menuSections' içeriyor
-      localStorage.setItem('siteContent', JSON.stringify(toSave));
-      showNotificationMessage('Changes saved successfully!');
-      
-      // Notify other parts of the app that content has changed
-      try {
-        const event = new CustomEvent('siteContentUpdated', { detail: { content: toSave } }); // Güncel content objesini gönder
-        window.dispatchEvent(event);
-      } catch (e) {
-        console.warn('Could not dispatch siteContentUpdated event:', e);
+      const toSave = hydrateContent(content);
+      saveSiteContentLocally(toSave);
+      dispatchSiteContentEvent(toSave);
+      showNotificationMessage(
+        autoPublish ? 'Changes saved. Syncing live site...' : 'Changes saved locally!',
+        autoPublish ? 'info' : 'success'
+      );
+      if (autoPublish) {
+        await publishChanges({ silent: true, override: toSave });
       }
     } catch (error) {
       console.error('Error saving changes:', error);
@@ -462,42 +402,28 @@ const AdminPanel: React.FC = () => {
     }
   };
 
-  // Publish changes (Simüle edilmiş GitHub deploy)
-  const publishChanges = async () => {
+  // Publish to GitHub (updates public/content/siteContent.json + docs copy)
+  const publishChanges = async ({ silent, override }: { silent?: boolean; override?: SiteContent } = {}) => {
     try {
-      // 1. Önce localStorage'a kaydet (publishedContent olarak veya sadece siteContent olarak)
-      const toPublish = { ...content };
-      localStorage.setItem('publishedContent', JSON.stringify(toPublish)); // Sadece yayınlanmış versiyonu tutmak için farklı bir key kullanabiliriz.
-      
-      showNotificationMessage('Content saved locally and attempting to publish...');
-
-      // 2. GitHub API veya simülasyonu
-      const githubUser = prompt('Your GitHub username:') || 'albertfast';
-      const githubRepo = prompt('GitHub repository name:') || 'teiraculinaria';
-      // Not: Gerçek uygulamalarda, GitHub PAT (Personal Access Token) asla doğrudan frontend'de tutulmamalı veya kullanılmamalıdır.
-      const githubToken = prompt('Your GitHub Personal Access Token (PAT) (This should ideally be handled by a backend service for security):'); 
-
-      if (!githubUser || !githubRepo || !githubToken) {
-        showNotificationMessage('Publishing cancelled. GitHub username, repository, and token are required.', 'error');
-        return;
+      const latestCreds = getStoredGitHubCreds();
+      setGithubCreds(latestCreds);
+      if (!latestCreds) {
+        showNotificationMessage('GitHub credentials missing. Go to Admin GitHub to connect.', 'error');
+        return false;
       }
-
-      // SIMÜLASYON: Gerçek bir uygulamada bu adımlar bir backend servisi tarafından yürütülmelidir.
-
-      showNotificationMessage(`Simulating deploy for ${githubUser}/${githubRepo}... This would involve:
-      1. Building the project (e.g., 'npm run build' on a server).
-      2. Committing the new 'dist' folder or updated content JSON.
-      3. Pushing to GitHub (origin main/gh-pages).
-      4. Triggering GitHub Pages/Vercel/Netlify build.`, 'info');
-      
-      // Simülasyonu biraz geciktirelim
-      await new Promise(resolve => setTimeout(resolve, 3000)); 
-      
-      showNotificationMessage(`Content successfully published to ${githubUser}/${githubRepo} repository! GitHub Actions triggered (simulated).`, 'success');
-
+      setPublishing(true);
+      if (!silent) {
+        showNotificationMessage('Publishing content to GitHub...', 'info');
+      }
+      await publishSiteContentToGitHub(override || content, latestCreds, 'content: update via admin panel');
+      showNotificationMessage(silent ? 'Changes saved and published!' : 'Content published successfully!', 'success');
+      return true;
     } catch (error) {
       console.error('Error publishing changes:', error);
       showNotificationMessage('Error publishing changes', 'error');
+      return false;
+    } finally {
+      setPublishing(false);
     }
   };
 
@@ -1261,10 +1187,34 @@ const AdminPanel: React.FC = () => {
       
       <div className="main-container">
         <div className="action-bar">
-          <button onClick={saveChanges} className="btn-primary">Save</button>
-          <button onClick={publishChanges} className="btn-success">Publish</button>
-          <button onClick={loadContent} className="btn-info">Reload Content</button>
-          <button onClick={detectWebsiteContent} className="btn-warning">Detect Content</button>
+          <div className="action-buttons">
+            <button onClick={saveChanges} className="btn-primary">
+              {autoPublish ? 'Save & Sync' : 'Save'}
+            </button>
+            <button onClick={() => publishChanges()} className="btn-success" disabled={publishing}>
+              {publishing ? 'Publishing…' : 'Publish'}
+            </button>
+            <button onClick={loadContent} className="btn-info">Reload Content</button>
+            <button onClick={detectWebsiteContent} className="btn-warning">Detect Content</button>
+          </div>
+          <div className="action-meta">
+            <label className="auto-publish-toggle">
+              <input
+                type="checkbox"
+                checked={autoPublish}
+                onChange={(e) => setAutoPublish(e.target.checked)}
+              />
+              <span>Auto publish to GitHub on save</span>
+            </label>
+            <div className={`github-status ${githubCreds ? 'connected' : 'missing'}`}>
+              {githubCreds
+                ? `GitHub connected (${githubCreds.owner}/${githubCreds.repo})`
+                : 'GitHub not connected — open Admin GitHub to add token'}
+              <button onClick={refreshGithubCreds} className="btn-outline small">
+                Refresh creds
+              </button>
+            </div>
+          </div>
         </div>
         
         <div className="content-container">

@@ -126,8 +126,52 @@
 /* Action Bar */
 .action-bar {
   display: flex;
-  gap: 1rem;
+  gap: 1.25rem;
+  flex-wrap: wrap;
   margin-bottom: 2rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.action-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 220px;
+}
+
+.auto-publish-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.auto-publish-toggle input {
+  width: 18px;
+  height: 18px;
+}
+
+.github-status {
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.github-status.connected {
+  color: #34d399;
+}
+
+.github-status.missing {
+  color: #fbbf24;
 }
 
 /* Menu Sections */
@@ -357,6 +401,12 @@ button {
 
 .light-mode .btn-outline:hover {
   background-color: rgba(0, 0, 0, 0.05);
+}
+
+.btn-outline.small {
+  padding: 0.35rem 0.85rem;
+  font-size: 0.8rem;
+  border-radius: 999px;
 }
 
 .btn-edit {
